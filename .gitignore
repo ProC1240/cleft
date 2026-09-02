@@ -22,4 +22,3 @@ backend/dist/
 # Generated from scripts/md-to-pdf.py
 SUMMARY.html
 DATAFLOW.html
-SUMMARY.pdf
