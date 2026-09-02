@@ -1,0 +1,210 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --accent: #6327ff;
+    --accent-soft: rgba(99, 39, 255, 0.28);
+    --accent-border: rgba(99, 39, 255, 0.4);
+    --text-primary: #d4c4ff;
+    --text-muted: #a78bfa;
+    --text-num: #ffffff;
+    --surface: #1a1728;
+    --bg: #08051a;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+    color-scheme: dark;
+  }
+
+  body {
+    @apply bg-bg text-text antialiased;
+    background-color: #08051a;
+    background-image:
+      radial-gradient(ellipse 70% 45% at 50% -5%, rgba(99, 39, 255, 0.22), transparent),
+      radial-gradient(circle at 85% 75%, rgba(99, 39, 255, 0.06), transparent 45%);
+    min-height: 100dvh;
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+}
+
+* {
+  scrollbar-color: #3d2a6b #0c0a12;
+  scrollbar-width: thin;
+}
+
+.glass {
+  background: #12101c;
+  border: 1px solid #1e1a2e;
+  transition:
+    border-color 400ms cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 400ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.section-label {
+  font-size: 0.65rem;
+  line-height: 1rem;
+  @apply font-semibold uppercase tracking-[0.2em] text-muted;
+}
+
+.stat-value {
+  @apply text-4xl font-bold tabular-nums tracking-tight text-num sm:text-5xl;
+}
+
+.page-enter {
+  animation: page-enter 520ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes page-enter {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.member-edit-panel {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 480ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.member-edit-panel--open {
+  grid-template-rows: 1fr;
+}
+
+.member-edit-panel__inner {
+  overflow: hidden;
+  min-height: 0;
+  opacity: 0;
+  transform: translateY(-10px);
+  margin-top: 0;
+  padding-top: 0;
+  border-top: 1px solid transparent;
+  transition:
+    opacity 380ms cubic-bezier(0.22, 1, 0.36, 1),
+    transform 480ms cubic-bezier(0.22, 1, 0.36, 1),
+    margin-top 480ms cubic-bezier(0.22, 1, 0.36, 1),
+    padding-top 480ms cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 480ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.member-edit-panel--open .member-edit-panel__inner {
+  opacity: 1;
+  transform: translateY(0);
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top-color: #1e1a2e;
+}
+
+.toast-enter {
+  animation: toast-enter 420ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes toast-enter {
+  from {
+    opacity: 0;
+    transform: translateX(12px) translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0) translateY(0);
+  }
+}
+
+input[type="file"] {
+  color: var(--text-primary);
+}
+
+input[type="file"]::file-selector-button,
+input[type="file"]::-webkit-file-upload-button {
+  margin-right: 0.75rem;
+  border: none;
+  border-radius: 9999px;
+  background-color: var(--accent) !important;
+  color: #fff !important;
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: filter 300ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+input[type="file"]::file-selector-button:hover,
+input[type="file"]::-webkit-file-upload-button:hover {
+  filter: brightness(1.1);
+}
+
+.nav-scroll {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.nav-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+@layer components {
+  .btn-accent {
+    background-color: var(--accent);
+    color: #fff;
+    box-shadow: 0 8px 28px rgba(99, 39, 255, 0.4);
+  }
+
+  .btn-accent:hover:not(:disabled) {
+    filter: brightness(1.1);
+  }
+
+  .btn-accent:disabled {
+    background-color: rgba(99, 39, 255, 0.35);
+    color: rgba(255, 255, 255, 0.8);
+    box-shadow: none;
+  }
+
+  .badge-index {
+    background-color: var(--accent);
+    color: #fff;
+  }
+
+  .chip-amount {
+    background-color: var(--accent-soft);
+    color: var(--text-num);
+  }
+
+  .text-num {
+    color: var(--text-num);
+  }
+}
+
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0 1000px var(--surface) inset;
+  -webkit-text-fill-color: var(--text-primary);
+  caret-color: var(--text-primary);
+  transition: background-color 9999s ease-out 0s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .page-enter,
+  .toast-enter {
+    animation: none;
+  }
+
+  .glass,
+  .member-edit-panel,
+  .member-edit-panel__inner {
+    transition: none;
+  }
+
+  .member-edit-panel--open .member-edit-panel__inner {
+    opacity: 1;
+    transform: none;
+  }
+}

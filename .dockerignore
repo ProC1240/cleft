@@ -1,0 +1,6 @@
+# Faster / smaller Docker build when context is repo root (Render)
+.git
+.github
+**/node_modules
+frontend/.next
+backend/dist

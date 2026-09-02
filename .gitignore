@@ -1,0 +1,25 @@
+.env
+**/.env
+!**/.env.example
+
+uploads/*
+!uploads/.gitkeep
+
+node_modules/
+backend/node_modules/
+frontend/node_modules/
+edit_front_end/node_modules/
+edit_front_end/dist/
+
+.next/
+backend/dist/
+*.tsbuildinfo
+.vscode/
+.cursor/
+.DS_Store
+*.log
+
+# Generated from scripts/md-to-pdf.py
+SUMMARY.html
+DATAFLOW.html
+SUMMARY.pdf

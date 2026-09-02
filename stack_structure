@@ -1,0 +1,396 @@
+# cleft — Stack & Project Structure
+
+> **cleft** is a full-stack bill-splitting app for group outings (bars, dinners, parties).  
+> Theme: **Purple Noir** — dark surfaces (`#08051a`), brand purple (`#6327FF`), bright body text (`#D4C4FF`), white numbers (`#FFFFFF`).
+
+---
+
+## 1. Technology Stack & Deployment
+
+### 1.1 Local Development
+
+#### Frontend (`frontend/`)
+
+| Layer | Technology | Version (approx.) | Role |
+|-------|------------|-------------------|------|
+| Framework | **Next.js** (App Router) | 16.x | File-based routing, client-heavy pages |
+| UI library | **React** | 19.x | Component model, client interactivity |
+| Styling | **Tailwind CSS** | 3.4.x | Utility-first CSS, design tokens, responsive layout |
+| Data fetching | **TanStack React Query** | 5.x | Auth session, profile, history, confirm mutations |
+| HTTP client | **Axios** | 1.7.x | REST to NestJS with `credentials: true` (cookies) |
+| Charts | **Recharts** | 2.x | Donut chart on embedded home dashboard |
+| Language | **TypeScript** | 5.6.x | Types across pages, hooks, shared libs |
+
+**Responsive / mobile**
+
+- `viewportFit: cover` + safe-area padding on header, body, toasts
+- `100dvh` min-height; horizontal scroll nav (`nav-scroll`) on narrow screens
+- Grids: 1 → 2 → 3 columns; touch-friendly button padding
+
+#### Backend (`backend/`)
+
+| Layer | Technology | Role |
+|-------|------------|------|
+| **NestJS** 12.x | REST API modules (auth, users, party) |
+| **Prisma** 5.x + **PostgreSQL** 16.x | Users, parties, items, history |
+| **Passport.js** | Google OAuth 2.0 + JWT (httpOnly cookie) |
+| **class-validator** | DTO validation |
+
+#### Local infrastructure
+
+| Component | Purpose |
+|-----------|---------|
+| **Docker Compose** | Local postgres + backend + frontend |
+| **frontend/Dockerfile** | Next.js production image (:3000) |
+| **backend/Dockerfile** | NestJS API image (:4000) |
+
+#### Design preview (`edit_front_end/`)
+
+| Layer | Purpose |
+|-------|---------|
+| **Vite** (:5173) | Standalone UI review, no backend |
+| **CleftUI.tsx** | Single-file mirror of all screens (mock data) |
+| **Sync rule** | `.cursor/rules/design-inspection-sync.mdc` |
+
+---
+
+### 1.2 Production Deployment
+
+```
+┌──────────────┐     HTTPS + cookies      ┌──────────────────┐
+│   Vercel     │ ───────────────────────► │  Render.com      │
+│  (Frontend)  │   NEXT_PUBLIC_API_URL    │  (NestJS API)    │
+└──────────────┘                          └────────┬─────────┘
+                                                 │ Prisma
+                                                 ▼
+                                        ┌──────────────────┐
+                                        │    Supabase      │
+                                        │  PostgreSQL 16   │
+                                        │  (Singapore)     │
+                                        └──────────────────┘
+```
+
+#### Frontend deployment (`frontend/`) → **Vercel** (Free Tier)
+
+| Layer | Technology | Version | Production host & role |
+|-------|------------|---------|------------------------|
+| Framework | **Next.js** (App Router) | 16.x | **Vercel Edge Network** — serverless deployment, fast static generation, file-based routing |
+| Styling | **Tailwind CSS** | 3.4.x | Design tokens & classes compiled and optimized at build time |
+| Data fetching | **TanStack React Query** | 5.x | Manages auth session cache, history, and party mutation states |
+| HTTP client | **Axios** | 1.7.x | Points to production Render API URL with `withCredentials: true` |
+
+**Vercel env:** `NEXT_PUBLIC_API_URL=https://<service>.onrender.com`
+
+#### Backend deployment (`backend/`) → **Render.com** (Free Web Service only)
+
+| Layer | Technology | Version | Production host & role |
+|-------|------------|---------|------------------------|
+| API framework | **NestJS** | 12.x | **Render Free Web Service** — REST API. **$0/mo** but spins down after ~15 min idle (cold start ~30–60s) |
+| ORM | **Prisma** | 5.x | Built during Render deploy; `DATABASE_URL` → Supabase |
+| Auth security | **Passport.js** | — | Google OAuth + JWT in HttpOnly cookies (`SameSite: none`, `Secure: true`) |
+
+**Critical:** Instance Type must be **Free**, not Starter (~$7/mo). Service name in Blueprint: `cleft-api`.  
+See `DEPLOY.md` Phase 0 (delete old Starter service) before fresh deploy.
+
+**Never on Render free path:** Starter instance, Persistent Disk, Render Postgres.
+
+#### Database & storage → **Supabase** (Free Tier)
+
+| Component | Technology | Production host & role |
+|-----------|------------|------------------------|
+| Database | **PostgreSQL** 16.x | **Supabase managed DB** — relational cloud storage for Users, Parties, and Items. **Singapore region** for lowest latency to TH users |
+
+**Notes (free-only)**
+
+- Slip images → `./uploads` on Render ephemeral disk (may disappear on redeploy)
+- Cross-origin auth: HTTPS + `COOKIE_SAME_SITE=none` — see `DEPLOY.md`
+- Full fresh-deploy checklist: `DEPLOY.md` (Phase 0–5)
+
+---
+
+## 2. Repository Layout
+
+```
+cursor_ai/
+├── stack_structure                 # This document
+├── docker-compose.yml
+├── DEPLOY.md / README.md
+│
+├── frontend/
+│   ├── app/
+│   │   ├── layout.tsx              # Root layout: TopNav, Providers, page-enter
+│   │   ├── globals.css             # Theme tokens, animations, component classes
+│   │   ├── loading.tsx             # Skeleton loader
+│   │   ├── page.tsx                # HOME — stats, history, embedded dashboard
+│   │   ├── dashboard/page.tsx      # Legacy redirect → /
+│   │   ├── items/page.tsx          # Inline item CRUD
+│   │   ├── members/page.tsx        # Member list + inline edit
+│   │   └── summary/page.tsx        # Party name, bill split, confirm
+│   ├── components/
+│   │   ├── top-nav.tsx             # Pill nav + profile; mobile wordmark top-right
+│   │   ├── app-logo.tsx            # Brand SVG icon + gradient wordmark
+│   │   ├── profile-menu.tsx        # Avatar dropdown: profile + auth (mobile portal modal)
+│   │   ├── payer-share-bar.tsx     # Stacked + per-member proportional share bars
+│   │   ├── dashboard-section.tsx   # Chart + payers + bars (home, logged-in only)
+│   │   ├── auth-guard.tsx          # Redirect unauthenticated → /
+│   │   ├── providers.tsx           # React Query + Toast
+│   │   └── ui/                     # button, card, input, skeleton, toast
+│   ├── hooks/use-party-session.ts  # localStorage draft party
+│   └── lib/
+│       ├── bill-display.ts         # Split math + formatMoney
+│       ├── types.ts                # BillItem, Member, SplitType
+│       └── axios.ts
+│
+├── backend/                        # NestJS + Prisma (see backend/src/)
+│
+└── edit_front_end/                 # Vite preview (not in Docker Compose)
+    ├── CleftUI.tsx
+    ├── globals.css
+    └── tailwind.config.ts
+```
+
+---
+
+## 3. Design System
+
+| Token | Value | Usage |
+|-------|-------|-------|
+| `bg` | `#08051a` | Page background |
+| `card` | `#12101c` | Card surfaces |
+| `surface` | `#1a1728` | Inputs, nested panels |
+| `text` | `#D4C4FF` | Body copy, names, labels |
+| `muted` | `#A78BFA` | Hints, section labels, secondary |
+| `num` | `#FFFFFF` | All amounts, stats, percentages |
+| `accent` | `#6327FF` | Logo, buttons, active nav, badges |
+| `border` | `#2a2540` | Card/input borders |
+
+**CSS component classes** (`globals.css`)
+
+| Class | Purpose |
+|-------|---------|
+| `.glass` | Card shell (dark fill + border) |
+| `.section-label` | Uppercase muted card headers |
+| `.stat-value` | Large white stat numbers |
+| `.btn-accent` | Primary purple pill button |
+| `.badge-index` | Purple circle, white index number |
+| `.chip-amount` | Purple-tint chip, white amount |
+| `.page-enter` | Route fade/slide-in |
+| `.member-edit-panel` | Smooth expand/collapse for member edit |
+| `.toast-enter` | Toast slide-in |
+
+**Rules**
+
+- Text → `text-text` / `text-muted`; numbers → `text-num` or `.stat-value`
+- Primary buttons: `.btn-accent` (purple bg, white label)
+- Active nav: purple pill + white text
+- `color-scheme: dark` — avoids browser yellow form controls
+
+---
+
+## 4. Navigation & Layout
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│ [icon]              cleft (mobile) / cleft wordmark (desktop)  [👤] │
+│ Home · Items · Members · Summary                            │
+└─────────────────────────────────────────────────────────────┘
+```
+
+| Link | Route | Auth |
+|------|-------|------|
+| Home | `/` | Public |
+| Items | `/items` | `AuthGuard` |
+| Members | `/members` | `AuthGuard` |
+| Summary | `/summary` | `AuthGuard` |
+
+- **No Dashboard nav link** — chart/payer blocks live on Home (scroll below history).
+- **`/dashboard`** → redirects to `/` (legacy URL).
+- **Profile** is not a page — click **avatar chip** (top-right) to open dropdown menu.
+
+---
+
+## 5. Application Screens
+
+### Home (`/`) — public
+
+**Guest (logged out):** ultra-clean welcome card only — logo, tagline, Login with Google. Session stats, history, and dashboard are hidden.
+
+**Logged in:**
+
+1. **Current session** — total spend + item count (from `usePartySession` + profile currency)
+2. **Members** — member count + names preview
+3. **Recent history** — API grid when logged in
+4. **Embedded dashboard** (`DashboardSection`, `id="dashboard"`) — donut chart, who pays, % bars
+
+### Profile menu (top-right dropdown)
+
+| Feature | Behavior |
+|---------|----------|
+| Avatar | File upload → base64 preview → saved via `PATCH /users/profile` |
+| Username | Editable text field |
+| Currency | e.g. `THB` — shown on Home session card |
+| Save profile | `PATCH /users/profile`, invalidates React Query cache |
+| Login | Redirect `GET /auth/google` |
+| Logout | `POST /auth/logout`, clears query cache + `cleft-session` |
+
+Click outside closes menu. Guest sees Login only.
+
+### Items (`/items`)
+
+- List cards with name, note badge, line total, unit price
+- **Edit** — inline form on same card (Save / Cancel)
+- **Add item** — toggle expandable form at bottom
+- Toasts on create/update/delete
+
+### Members (`/members`)
+
+- Row: avatar initial, **click name** → toggle edit panel (slide/fade animation)
+- **Auto-save** — every change writes to `usePartySession` immediately (no Confirm)
+- **All / Partial** toggle; partial → per-item checkboxes
+- **Unchecked items = 0 THB** for that member; row amount updates in realtime
+- Click name again → collapse panel
+- Delete with confirm dialog
+
+### Summary (`/summary`)
+
+- **Party Name** input (top of first card) — bound to `session.partyName`
+- **Bill split overview** — stacked proportional bar (all members) + legend
+- Live payer rows with **per-member share bar** (% updates in realtime from session)
+- Live payer rows from `computePayerAmounts` (no Calculate button)
+- **Digital slip** — metadata, member totals, optional slip image
+- **Confirm & share** → `POST /party/confirm` (FormData); on success clears items/members but **keeps party name**
+- Back → `/members`
+
+---
+
+## 6. UI Logic & Data Flow
+
+### Client draft session (`usePartySession`)
+
+```
+localStorage key: cleft-session
+{ partyName, partyDate, items[], members[] }
+```
+
+- Loaded on mount; auto-saved on every `setSession`
+- Default party name: `"Friday Chill Party"`
+- Survives refresh; cleared on confirm (except `partyName`)
+
+### Auth flow
+
+```
+Login (profile menu) → GET /auth/google → JWT cookie
+GET /auth/session → { authenticated: true }
+Protected routes (Items/Members/Summary) → AuthGuard → redirect / if no session
+Profile + history → require auth
+```
+
+### Party confirm flow
+
+```
+Items + Members (localStorage) → Summary preview (client math)
+Confirm & share → POST /party/confirm → DB + optional slip upload
+→ reset items/members, keep partyName → redirect Home
+```
+
+### Split algorithm (`bill-display.ts` ↔ `party.service.ts`)
+
+**Per-item fair split** (client preview = server authoritative on confirm):
+
+| Rule | Detail |
+|------|--------|
+| ALL member | Assigned to every item |
+| PARTIAL member | Assigned only to checked items |
+| Empty partial | Owes **0 THB** |
+| Per item | `price × qty` ÷ number of assignees for that item |
+| No assignees | Item skipped (no fallback split) |
+
+### Realtime recalculation
+
+| Screen | Triggers recalc |
+|--------|-----------------|
+| Members | Name, All/Partial, checkbox toggle |
+| Home dashboard | Any session change (shared hook) |
+| Summary | Any session change |
+
+All use `computePayerAmounts(items, members)`.
+
+### Toast feedback
+
+Success / error / info toasts for profile save, item CRUD, confirm, logout.
+
+---
+
+## 7. Environment Variables
+
+### Frontend
+
+| Variable | Local | Production (Vercel) | Purpose |
+|----------|-------|---------------------|---------|
+| `NEXT_PUBLIC_API_URL` | `http://localhost:4000` | `https://<service>.onrender.com` | Backend URL for `next.config` rewrites only; browser calls `/api/*` |
+
+### Backend
+
+| Variable | Local | Production (Render) | Purpose |
+|----------|-------|---------------------|---------|
+| `DATABASE_URL` | `postgresql://...@localhost:5432/...` | Supabase connection string | Prisma → PostgreSQL |
+| `FRONTEND_URL` | `http://localhost:3000` | `https://<app>.vercel.app` | CORS + post-login redirect |
+| `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` | dev credentials | production OAuth client | Google login |
+| `GOOGLE_CALLBACK_URL` | `http://localhost:4000/auth/google/callback` | `https://<app>.vercel.app/api/auth/google/callback` | OAuth callback (via Vercel proxy) |
+| `JWT_ACCESS_SECRET` / `JWT_REFRESH_SECRET` | dev secrets | long random strings | JWT signing |
+| `COOKIE_SAME_SITE` | `lax` | `none` | Cross-site cookie attribute (still `none` with proxy) |
+| `PORT` | `4000` | set by Render | HTTP listen port |
+
+---
+
+## 8. Key Commands
+
+```bash
+# Full stack
+docker compose up --build
+
+# Frontend (:3000)
+cd frontend && npm install && npm run dev
+
+# Backend (:4000)
+cd backend && npm install && npx prisma migrate dev && npm run start:dev
+
+# UI preview only (:5173)
+cd edit_front_end && npm install && npm run dev
+
+# Production build (local)
+cd frontend && npm run build && npm run start
+
+# Production deploy — see DEPLOY.md
+# Vercel (frontend) + Render (backend) + Supabase (database)
+```
+
+---
+
+## 9. Conventions & Sync
+
+| Topic | Rule |
+|-------|------|
+| UI sync | Changes to `frontend/app/**`, `frontend/components/**` → mirror `edit_front_end/CleftUI.tsx` |
+| Split math | Keep `bill-display.ts` and `party.service.ts` aligned |
+| Money format | `formatMoney()` in `bill-display.ts` |
+| Payer rows | `computePayerAmounts()` everywhere on client |
+| Section headers | `.section-label` component |
+| Removed | `dialog.tsx`, `lucide-react` (unused) |
+
+### `edit_front_end` nav (mock)
+
+Same four links as production: **Home · Items · Members · Summary**.  
+Dashboard blocks embedded in `HomeView`. Profile menu mocked with toggle login state.
+
+---
+
+## 10. Quick Reference — Page → State → API
+
+| Page | Primary state | API calls |
+|------|---------------|-----------|
+| Home | `usePartySession`, history query | `GET /party/history` (if auth) |
+| Items | `usePartySession` | — |
+| Members | `usePartySession` | — |
+| Summary | `usePartySession`, slip file | `POST /party/confirm` |
+| Profile menu | local form + queries | `GET/PATCH /users/profile`, auth endpoints |
