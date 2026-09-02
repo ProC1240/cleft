@@ -12,38 +12,51 @@ import markdown
 from markdown.extensions.tables import TableExtension
 
 HTML_TEMPLATE = """<!DOCTYPE html>
-<html lang="en">
+<html lang="th">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>{title}</title>
   <style>
     @page {{
-      margin: 18mm 16mm;
+      size: A4;
+      margin: 18mm 16mm 20mm;
+      @bottom-left {{
+        content: "Cleft - Project Summary";
+        color: #6f6791;
+        font-size: 8pt;
+      }}
+      @bottom-right {{
+        content: "Page " counter(page) " of " counter(pages);
+        color: #6f6791;
+        font-size: 8pt;
+      }}
     }}
     body {{
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
-      font-size: 11pt;
-      line-height: 1.55;
-      color: #1a1a1a;
+      font-family: "Noto Sans Thai", Thonburi, Tahoma, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-size: 10.5pt;
+      line-height: 1.62;
+      color: #211a2e;
       max-width: 100%;
     }}
     h1 {{
-      font-size: 22pt;
-      margin: 0 0 12pt;
-      color: #6327FF;
-      border-bottom: 2px solid #6327FF;
-      padding-bottom: 6pt;
+      font-size: 24pt;
+      line-height: 1.25;
+      margin: 0 0 16pt;
+      color: #5636c9;
+      border-bottom: 2px solid #6d4de6;
+      padding-bottom: 9pt;
     }}
     h2 {{
-      font-size: 15pt;
-      margin: 20pt 0 8pt;
-      color: #4c1d95;
+      font-size: 15.5pt;
+      margin: 22pt 0 8pt;
+      color: #5636c9;
       page-break-after: avoid;
     }}
     h3 {{
-      font-size: 12pt;
+      font-size: 12.5pt;
       margin: 14pt 0 6pt;
+      color: #33294a;
       page-break-after: avoid;
     }}
     p, li {{
@@ -53,19 +66,19 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     code {{
       font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
       font-size: 9.5pt;
-      background: #f3f0ff;
+      background: #f2eefc;
       padding: 1px 4px;
       border-radius: 4px;
     }}
     pre {{
-      background: #f8f7fc;
-      border: 1px solid #ddd6fe;
+      background: #f7f5fc;
+      border: 1px solid #d9d1ef;
       border-radius: 8px;
       padding: 10pt 12pt;
       overflow-x: auto;
       font-size: 9pt;
       line-height: 1.45;
-      page-break-inside: avoid;
+      break-inside: avoid;
     }}
     pre code {{
       background: none;
@@ -76,7 +89,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
       border-collapse: collapse;
       margin: 10pt 0 14pt;
       font-size: 10pt;
-      page-break-inside: avoid;
+      break-inside: auto;
     }}
     th, td {{
       border: 1px solid #d4d4d8;
@@ -85,17 +98,23 @@ HTML_TEMPLATE = """<!DOCTYPE html>
       vertical-align: top;
     }}
     th {{
-      background: #ede9fe;
+      background: #eeeafd;
       font-weight: 600;
     }}
     tr:nth-child(even) td {{
-      background: #fafafa;
+      background: #faf9fd;
+    }}
+    thead {{
+      display: table-header-group;
+    }}
+    tr {{
+      break-inside: avoid;
     }}
     blockquote {{
       margin: 10pt 0;
       padding: 8pt 12pt;
-      border-left: 4px solid #6327FF;
-      background: #faf5ff;
+      border-left: 4px solid #6d4de6;
+      background: #f7f5fc;
       color: #444;
     }}
     hr {{
@@ -107,7 +126,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
       padding-left: 18pt;
     }}
     a {{
-      color: #6327FF;
+      color: #6d4de6;
       text-decoration: none;
     }}
   </style>
@@ -147,6 +166,7 @@ def html_to_pdf(html_path: Path, pdf_path: Path) -> None:
         "--headless=new",
         "--disable-gpu",
         "--no-sandbox",
+        "--no-pdf-header-footer",
         f"--print-to-pdf={pdf_path.resolve()}",
         f"file://{html_path.resolve()}",
     ]

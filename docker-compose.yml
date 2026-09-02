@@ -11,6 +11,11 @@ services:
       - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d cleft"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
 
   backend:
     build:
@@ -20,25 +25,37 @@ services:
     restart: unless-stopped
     env_file:
       - ./backend/.env
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/cleft?schema=public
+      NODE_ENV: development
     ports:
       - "4000:4000"
     volumes:
       - ./uploads:/app/uploads
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:4000/health').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
 
   frontend:
     build:
       context: ./frontend
       dockerfile: Dockerfile
+      args:
+        API_PROXY_TARGET: http://backend:4000
     container_name: cleft-frontend
     restart: unless-stopped
-    env_file:
-      - ./frontend/.env
+    environment:
+      API_PROXY_TARGET: http://backend:4000
     ports:
       - "3000:3000"
     depends_on:
-      - backend
+      backend:
+        condition: service_healthy
 
 volumes:
   pgdata:

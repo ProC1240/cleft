@@ -39,7 +39,7 @@ export class PartyService {
         if ((p.itemNames ?? []).includes(item.name)) assigned.add(p.name);
       }
 
-      let assignees = [...assigned];
+      const assignees = [...assigned];
       if (assignees.length === 0) continue;
 
       const share = item.price / assignees.length;

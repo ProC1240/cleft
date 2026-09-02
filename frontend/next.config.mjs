@@ -1,5 +1,5 @@
 /** @type {import('next').NextConfig} */
-const backendUrl = (process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000").replace(/\/$/, "");
+const backendUrl = (process.env.API_PROXY_TARGET || process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000").replace(/\/$/, "");
 
 const nextConfig = {
   async rewrites() {
