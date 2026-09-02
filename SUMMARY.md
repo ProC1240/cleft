@@ -1,148 +1,189 @@
-# Cleft — Project Summary
+# Cleft — สรุปโปรเจกต์
 
-## 1. Problem Definition
+## 1. นิยามปัญหา (Problem Definition)
 
-Group activities such as dining, gatherings, and shared outings often create a common problem: money is spent by several people, but settlement is usually done manually with chat messages, spreadsheet formulas, or memory.
+ปัญหาที่โปรเจกต์นี้พยายามแก้ไขคือความยุ่งยากในการจัดการค่าใช้จ่ายเมื่อกลุ่มคนไปทานอาหาร หรือออกไปทำกิจกรรมร่วมกัน แต่ละคนอาจจ่ายเงินคนละแบบ ไม่ได้ระบุชัดว่าใครจ่ายอะไร อะไรเป็นค่าใช้จ่ายของใคร จึงทำให้เกิดปัญหาดังต่อไปนี้:
 
-This leads to three main issues:
+- คนในกลุ่มไม่ทราบว่าต้องจ่ายเท่าไหร่ต่อคน
+- มีการคำนวณแยกกันเองและเกิดความผิดพลาดได้ง่าย
+- ข้อมูลค่าใช้จ่ายกระจัดกระจาย เช่น บันทึกในแชต ไฟล์ Excel หรือการจดด้วยมือ
+- ไม่มีกลไกตรวจสอบว่าคนที่จ่ายแล้ว ได้รับคืนจริงหรือไม่
+- ความยุ่งยากเพิ่มขึ้นเมื่อมีรายการที่หลายคนร่วมใช้กัน หรือมีคนใช้บางรายการแต่ไม่ใช่ทุกรายการ
 
-- Inconsistent item tracking: not every participant knows which expenses belong to whom.
-- Manual calculation errors: total and share values are easy to miscalculate.
-- Poor accountability: there is no clear record of who paid, who owes, and which items were confirmed.
+Cleft จึงถูกออกแบบมาเพื่อช่วยให้คนในกลุ่มสามารถ:
 
-Cleft is designed to solve this by providing a simple group bill-splitting workflow where users can:
+- เพิ่มบิล/ปาร์ตี้ใหม่
+- ใส่รายการค่าใช้จ่ายแต่ละรายการ
+- ระบุผู้เข้าร่วมแต่ละคนในปาร์ตี้
+- กำหนดรูปแบบการแบ่งเงิน เช่น แบ่งให้ทุกคน หรือแบ่งตามรายการที่เลือก
+- ตรวจสอบยอดสรุปก่อนยืนยัน
+- บันทึกประวัติและข้อมูลสรุปลงในฐานข้อมูลเพื่อให้สามารถดูย้อนหลังได้
 
-- add a party
-- list items and members
-- choose split logic
-- confirm the final calculation
-- view payment history and summary
+## 2. Scope ของโปรเจกต์
 
-## 2. Project Scope
+### 2.1 Scope ที่อยู่ในงาน
 
-### In scope
+- ระบบล็อกอินด้วย Google OAuth
+- การจัดการผู้ใช้และข้อมูล profile
+- การสร้าง party/บิลสำหรับกลุ่ม
+- การเพิ่มรายการค่าใช้จ่าย (Item) พร้อมบันทึกราคาและหมายเหตุ
+- การเพิ่มสมาชิกใน party
+- การแบ่งค่าใช้จ่ายแบบ ALL และ PARTIAL
+- การคำนวณยอดที่แต่ละคนต้องจ่าย/ได้รับคืน
+- การยืนยันบิล (Confirm) เพื่อบันทึกข้อมูลแบบถาวร
+- การเก็บประวัติการทำธุรกรรมหรือ party ที่เคย confirm แล้ว
+- การจัดเก็บข้อมูลใน PostgreSQL ผ่าน Prisma ORM
+- การใช้งานแบบ local draft session ก่อนยืนยันข้อมูลสุดท้าย
 
-- Google-based authentication and protected routes
-- party creation and date tracking
-- item-level cost entries and notes
-- participant management
-- split modes: ALL and PARTIAL
-- calculation of per-person share and payer balance
-- final confirmation workflow
-- database persistence for users, parties, and histories
-- local draft session before final confirmation
+### 2.2 Scope ที่อยู่นอกขอบเขต
 
-### Out of scope
+- การชำระเงินจริงผ่าน e-wallet หรือธนาคาร
+- ระบบแจ้งเตือนอัตโนมัติ เช่น SMS, Line, Email
+- การทำงานหลายเครื่องแบบ real-time แบบ live sync
+- การคำนวณสกุลเงินหลายสกุลและอัตราแลกเปลี่ยน
+- รายงานสถิติขั้นสูงหรือ analytics แบบเชิงธุรกิจ
+- การจัดการ recurring bill หรือ subscription
 
-- real-time multi-user live synchronization
-- recurring expenses or subscription billing
-- multi-currency exchange conversion
-- push notifications and email reminders
-- advanced analytics or export reports
-- payment settlement execution (cash transfer, e-wallet integration)
+สิ่งที่โปรเจกต์นี้เน้นคือ “ระบบจัดการแบ่งบิลสาธารณะในกลุ่ม” ให้ทำงานได้จริงและมีโครงสร้างที่เข้าใจง่าย ไม่ได้ถูกออกแบบให้เหมือนแอปชำระเงินแบบเต็มรูปแบบ
 
-This project is intentionally scoped as a practical full-stack app for portfolio/demo use rather than a production payment platform.
+## 3. เหตุผลที่ใช้โครงสร้างโปรเจกต์แบบนี้
 
-## 3. Why This Project Structure Was Created
+โครงสร้างของโปรเจกต์นี้ถูกออกแบบให้แยกความรับผิดชอบแต่ละชั้นออกจากกัน เพื่อให้ทีมพัฒนาเข้าใจง่ายและจัดการโค้ดได้สะดวกขึ้น
 
-The project is organized to separate responsibilities and keep the system easier to understand, test, and deploy.
+### 3.1 ชั้น Frontend
 
-### Root-level files
+- โฟลเดอร์: frontend/
+- ใช้ Next.js
+- ทำหน้าที่รับข้อมูลจากผู้ใช้ แสดงหน้า UI และจัดการสถานะหน้า เช่น dashboard, items, members, summary
+- มีฟังก์ชันควบคุม local draft session และเรียก API ไปที่ backend
+- เหตุผล: Frontend ต้องแยกออกจาก backend เพื่อให้มีหน้าที่ชัดเจนและสามารถ deploy โดยแยก service ได้
 
-- Dockerfile: build the backend runtime for container-based deployment
-- docker-compose.yml: run project services together in local development
-- .env.example: template for local environment variables
+### 3.2 ชั้น Backend
 
-### Frontend folder
+- โฟลเดอร์: backend/
+- ใช้ NestJS + Prisma
+- ทำหน้าที่รับ request, ตรวจสอบ auth, validate input, คำนวณค่าใช้จ่าย, และจัดเก็บลงฐานข้อมูล
+- เหตุผล: Backend เป็นส่วนที่ควบคุมข้อมูลและ business logic เพื่อให้ data ถูกบันทึกในรูปแบบที่สอดคล้องและปลอดภัย
 
-- frontend/: main web application built with Next.js
-- purpose: provide user experience, session handling, item/member summary screens, and client-side split calculations
-- reason: this layer is responsible for the interactive user-facing experience and is separated from backend logic for easier deployment and clearer responsibility boundaries
+### 3.3 ชั้น Database
 
-### Backend folder
+- ใช้ PostgreSQL
+- เก็บข้อมูลต่าง ๆ เช่น User, Party, Item, Participant, Consumption, History
+- เหตุผล: ข้อมูลที่เกี่ยวกับค่าใช้จ่ายต้องถูกเก็บถาวรและสามารถเรียกใช้ในภายหลังได้
 
-- backend/: NestJS API server with Prisma ORM
-- purpose: authenticate users, validate requests, compute and persist party data, and serve app logic through REST endpoints
-- reason: API logic should remain separated from UI code so it can be deployed independently and reused by other clients in the future
+### 3.4 ชั้น Dev Helper / Tooling
 
-### Supporting folders
+- scripts/: เก็บสคริปต์ช่วยงาน เช่น สร้าง JWT secret และแปลง Markdown เป็น PDF
+- edit_front_end/: เป็นพื้นที่ทดลอง UI หรือเวอร์ชัน mockup ที่นำมาอ้างอิงสำหรับการออกแบบ
+- uploads/: ใช้จัดเก็บไฟล์แนบ เช่น slip รูปสลิปค่าใช้จ่าย
 
-- edit_front_end/: prototype or design iteration area for UI experimentation
-- scripts/: helper utilities such as JWT generation and PDF export
-- uploads/: storage area for uploaded slip images or local attachments
+### 3.5 Root-level configuration
 
-This separation keeps each layer focused on one concern: UI, API, database, and tooling.
+- Dockerfile: สำหรับ build backend ใน container
+- docker-compose.yml: สำหรับรันหลาย service พร้อมกันในเครื่อง local
+- .env.example: template variable ที่ใช้สำหรับ local/dev
 
-## 4. Data Pipeline
+โครงสร้างนี้ทำให้แต่ละชั้นมีความรับผิดชอบที่ชัดเจน เช่น
 
-The system data path is designed around a clear flow from user action to persistence.
+- UI ไม่น่าจะมี business logic มากเกินไป
+- API ไม่ต้องคอยจัดการ rendering
+- Database ทำหน้าที่เก็บข้อมูลอย่างเดียว
+
+## 4. Data Pipeline (การไหลของข้อมูล)
+
+การทำงานของระบบสามารถอธิบายเป็น pipeline ได้ดังนี้:
 
 ```text
-User action
-   ↓
-Next.js frontend
-   ↓
-/api rewrite via next.config.mjs
-   ↓
-NestJS backend
-   ↓
-Validation + auth + business logic
-   ↓
-Prisma ORM
-   ↓
-PostgreSQL database
+ผู้ใช้ทำงานบน Frontend
+        ↓
+Next.js รับข้อมูลและจัดเก็บ draft ใน localStorage
+        ↓
+Frontend ส่ง request ไปที่ backend ผ่าน /api
+        ↓
+NestJS ตรวจสอบ auth, validate input, คำนวณ split
+        ↓
+Prisma ORM บันทึกข้อมูลลง PostgreSQL
+        ↓
+Frontend ดึงข้อมูลที่บันทึกแล้วมาแสดงผล
 ```
 
-### Pipeline flow in practice
+### 4.1 ขั้นตอนการไหลของข้อมูลแบบจริง
 
-1. A user opens a page in the frontend and creates or edits a party.
-2. Draft data is stored in localStorage before confirmation.
-3. When the user confirms, the frontend sends the payload to the backend API.
-4. The backend checks JWT/session validity and validates party data.
-5. The backend calculates participant shares and resulting totals.
-6. Prisma writes records into PostgreSQL.
-7. The frontend fetches updated party history and summary data for display.
+1. ผู้ใช้เข้ามาที่หน้า app และทำการล็อกอินด้วย Google
+2. ระบบทำการสร้าง session และเก็บข้อมูลผู้ใช้ใน backend
+3. ผู้ใช้สร้าง party ใหม่และเพิ่มรายการค่าใช้จ่าย
+4. ผู้ใช้เพิ่มสมาชิกของกลุ่มและเลือกการแบ่งเงิน
+5. ระบบเก็บข้อมูล draft ลง localStorage ก่อนยืนยันยอดสุดท้าย
+6. เมื่อกดยืนยัน ระบบจะส่งข้อมูลไปยัง backend API
+7. Backend ทำการตรวจสอบว่าผู้ใช้เข้าสู่ระบบจริงหรือไม่
+8. Backend จะประมวลผลข้อมูล, คำนวณค่าใช้จ่าย, และสร้างความสัมพันธ์ระหว่าง party, item, participant, consumption
+9. Prisma บันทึกข้อมูลทั้งหมดลง PostgreSQL
+10. Frontend โหลดข้อมูลใหม่จาก backend เพื่อแสดง summary, history, และรายงานสรุป
 
-The server does not trust client-side data alone; it validates and persists the final state in the database.
+### 4.2 ความสำคัญของ pipeline นี้
 
-## 5. Data Flow
+- Frontend ทำหน้าที่แสดงและรับ input
+- Backend ทำหน้าที่คุ้มครอง logic และความถูกต้องของข้อมูล
+- Database ทำหน้าที่เก็บข้อมูลที่ผ่านประมวลผลแล้ว
+
+จึงช่วยลดความเสี่ยงของการสร้างข้อมูลบกพร่องหรือข้อมูลไม่สอดคล้องกันระหว่าง frontend และ database
+
+## 5. Data Flow (การไหลของข้อมูลเชิงระบบ)
 
 ```text
-Browser
-  ├─ Enter items and members
-  ├─ Keep draft in localStorage
-  └─ Send confirm request
-            ↓
+Browser / User
+   ├─ เพิ่ม Item
+   ├─ เพิ่ม Participant
+   ├─ กด Confirm
+   └─ ดึงผลสรุป
+         ↓
 Frontend (Next.js)
-  ├─ API_BASE = /api
-  ├─ rewrite to backend host
-  └─ show dashboard / summary / history
-            ↓
+   ├─ จัดการ state และ UI
+   ├─ เข้าถึง localStorage
+   ├─ เรียก API via /api
+   └─ แสดงผล dashboard / members / summary
+         ↓
 Backend (NestJS)
-  ├─ auth/session validation
-  ├─ business rules for split calculation
-  └─ Prisma save/read operations
-            ↓
+   ├─ Auth Guard
+   ├─ Validation
+   ├─ Split Calculation
+   ├─ Business Rule
+   └─ Prisma Query / Mutation
+         ↓
 Database (PostgreSQL)
-  ├─ User
-  ├─ Party
-  ├─ Item
-  ├─ Participant
-  ├─ Consumption
-  └─ History
+   ├─ User
+   ├─ Party
+   ├─ Item
+   ├─ Participant
+   ├─ Consumption
+   └─ History
 ```
 
-### Core data flow example
+### 5.1 ตัวอย่าง flow ของการคำนวณค่าใช้จ่าย
 
-- User signs in with Google.
-- User creates a party and adds items.
-- Each item has a price and note.
-- Participants are assigned either ALL or PARTIAL split logic.
-- The backend builds a consumption matrix between participants and items.
-- The system computes each payer's share and resulting debt-to-settle.
-- The final confirmed party is stored and shown in history.
+- ผู้ใช้สร้าง party ชื่อว่า “Dinner with Friends”
+- เพิ่มรายการ เช่น ข้าว 300, เครื่องดื่ม 180, ของหวาน 240
+- เพิ่มผู้ร่วม เช่น Alice, Bob, Charlie
+- กำหนด splitType ให้กับแต่ละคน เช่น ALL หรือ PARTIAL
+- ระบบจะสร้างความสัมพันธ์ระหว่าง participant กับ item ผ่าน Consumption
+- จากข้อมูลดังกล่าว ระบบจะคำนวณว่า:
+  - ใครเป็นคนจ่ายรวม
+  - ใครเป็นคนต้องจ่ายเพิ่ม
+  - ใครควรได้รับเงินคืน
+  - จำนวนสรุปสุดท้ายของแต่ละคน
 
-## 6. ER Diagram
+### 5.2 บทบาทของ middleware และ auth
+
+ความปลอดภัยของระบบจะถูกควบคุมผ่าน:
+
+- Google OAuth
+- JWT strategy
+- protected routes
+- cookie-based auth
+
+ดังนั้น frontend ที่ไม่มี session ถูกต้องจะไม่สามารถเข้าถึงข้อมูลส่วนตัวของ party ได้
+
+## 6. ER Diagram (Diagram ความสัมพันธ์ของฐานข้อมูล)
 
 ```text
 User
@@ -152,11 +193,12 @@ User
   - username
   - avatar
   - currencySymbol
+  - refreshTokenHash
   - createdAt
   - updatedAt
-  |
-  | 1 ────< many
-  v
+      |
+      | 1 ───────< many
+      v
 History
   - id
   - userId
@@ -171,66 +213,121 @@ Party
   - slipUrl
   - createdAt
   - updatedAt
-  |
-  | 1 ────< many
-  +--------------------+
-  | Item               |
-  | - id               |
-  | - name             |
-  | - price            |
-  | - note             |
-  | - partyId          |
-  +--------------------+
+      |
+      | 1 ───────< many
+      v
+Item
+  - id
+  - name
+  - price
+  - note
+  - partyId
 
 Party
-  |
-  | 1 ────< many
-  +----------------------+
-  | Participant          |
-  | - id                 |
-  | - name               |
-  | - splitType          |
-  | - partyId            |
-  +----------------------+
+      |
+      | 1 ───────< many
+      v
+Participant
+  - id
+  - name
+  - splitType
+  - partyId
 
-Item              1 ────< many   Consumption   > many ──── 1   Participant
-  - id                           - participantId
-  - name                         - itemId
-  - price                        (composite key)
+Item         1 ───────< many        Consumption        > many ─────── 1        Participant
+  - id                                - participantId
+  - name                              - itemId
+  - price                             (composite primary key)
   - partyId
 ```
 
-### Relationship summary
+### 6.1 ความสัมพันธ์หลักใน ER model
 
-- User to History: one-to-many
-- User to Party is indirect through History
-- Party to Item: one-to-many
-- Party to Participant: one-to-many
-- Item to Consumption: one-to-many
-- Participant to Consumption: one-to-many
-- Consumption links item and participant in a many-to-many relationship resolved through a composite primary key
+- User กับ History: one-to-many
+- History เชื่อมกับ Party: many-to-one
+- Party กับ Item: one-to-many
+- Party กับ Participant: one-to-many
+- Item กับ Consumption: one-to-many
+- Participant กับ Consumption: one-to-many
 
-## 7. Application Logic Summary
+### 6.2 ความสำคัญของ Consumption
 
-The main business logic of the app revolves around splitting shared costs fairly.
+Consumption เป็นตารางที่ทำหน้าที่เชื่อมโยงระหว่าง participant กับ item เพื่ออธิบายว่า “คนคนนี้ใช้รายการนี้หรือไม่” ซึ่งเป็นประเด็นที่สำคัญมากในการคำนวณค่าใช้จ่ายและการแบ่งสัดส่วน
 
-- Item cost is stored as a monetary value.
-- Participant split mode determines whether they pay for all or only selected items.
-- Consumption records define which participant consumed which item.
-- Final totals are calculated from these relationships.
-- The application presents a summary that indicates who paid, who owes, and what share each member should receive.
+ถ้าไม่มีตารางนี้ ระบบจะไม่สามารถรู้ได้ว่าแต่ละคนใช้อะไรบ้าง และไม่สามารถคำนวณได้ว่าคนไหนต้องจ่ายเท่าไหร่
 
-## 8. Deliverable Status
+## 7. Business Logic หลักของแอป
 
-This project is structured as a practical full-stack application suitable for:
+หัวใจหลักของแอปคือการคำนวณค่าใช้จ่ายที่ถูกต้องและสามารถยืนยันได้
 
-- learning full-stack architecture
-- building a real demo app
-- demonstrating API + database + frontend integration
-- showcasing portfolio-level engineering work
+### 7.1 การคำนวณแบบ ALL
 
-It is not intended to be a production-grade payment or settlement service, but it demonstrates the full lifecycle of a real application: UI, server, auth, validation, persistence, and calculation logic.
+เมื่อ participant มี splitType = ALL หมายความว่าคนนี้จะรับผิดชอบค่าใช้จ่ายทั้งหมดของรายการนั้น ๆ
 
-## 9. Key Takeaway
+### 7.2 การคำนวณแบบ PARTIAL
 
-Cleft addresses the real-world problem of splitting expenses among a group without relying on manual calculations and inconsistent notes. The project combines frontend interaction, backend logic, and database persistence into one cohesive workflow and serves as a strong example of full-stack development for internship/portfolio purposes.
+เมื่อ participant มี splitType = PARTIAL หมายความว่าคนนี้จะรับผิดชอบเฉพาะรายการที่เลือกหรือรายการที่เป็นของตัวเองเท่านั้น
+
+### 7.3 การคำนวณยอดสรุป
+
+ระบบจะนำข้อมูลต่อไปนี้มารวมกัน:
+
+- ราคารวมทั้งหมดของ party
+- รายการแต่ละรายการและผู้ใช้รายการนั้น ๆ
+- ผู้ที่จ่ายเงินไปแล้ว
+- ผู้ที่ต้องชำระเพิ่มเติมหรือได้รับคืน
+
+จากข้อมูลนี้ จะมีการแปลงเป็นผลลัพธ์ที่สามารถอ่านได้ง่าย เช่น:
+
+- Alice จ่าย 600 บาท
+- Bob ต้องชำระ 250 บาท
+- Charlie ควรได้รับคืน 150 บาท
+
+## 8. เทคโนโลยีที่ใช้
+
+| ส่วน | เทคโนโลยี | หน้าที่ |
+|------|-----------|--------|
+| Frontend | Next.js | UI และ route หน้าเว็บ |
+| Backend | NestJS | API, auth, business logic |
+| Database | PostgreSQL | เก็บข้อมูลหลัก |
+| ORM | Prisma | map model กับ database |
+| Auth | Google OAuth + JWT | การยืนยันตัวตน |
+| Container | Docker | รันแอปแบบมาตรฐาน |
+| Local dev | docker-compose | รันหลาย service พร้อมกัน |
+
+## 9. Workflow ของผู้ใช้ (User Journey)
+
+```text
+1. Login ด้วย Google
+2. สร้าง party
+3. เพิ่มสมาชิก
+4. เพิ่มรายการค่าใช้จ่าย
+5. เลือก split type
+6. ตรวจสอบสรุป
+7. Confirm ข้อมูล
+8. ดูประวัติ party
+9. ดูยอดชำระที่ต้องจ่าย/ได้รับคืน
+```
+
+กระบวนการนี้สะท้อนถึงแนวคิดที่ว่าแอปนี้ไม่ได้เป็นแค่ “ฟอร์มกรอกข้อมูล” แต่เป็น “ระบบควบคุมการจัดการเงินของกลุ่ม” ที่มีการยืนยันและบันทึกข้อมูลแบบมีประสิทธิภาพ
+
+## 10. ประโยชน์ของโปรเจกต์
+
+- ช่วยอำนวยความสะดวกสำหรับการแบ่งบิลแบบกลุ่ม
+- ลดความผิดพลาดจากการคำนวณด้วยมือ
+- เพิ่มความโปร่งใสในการจัดการค่าใช้จ่าย
+- ทำให้ข้อมูลถูกจัดเก็บอย่างเป็นระบบ
+- เป็นตัวอย่างโครงการ full-stack ที่แสดงความรู้ด้าน frontend, backend, database, auth, และ deployment
+
+## 11. สรุปท้าย
+
+Cleft เป็นโปรเจกต์ที่ออกแบบเพื่อแก้ปัญหาการแบ่งค่าใช้จ่ายในกลุ่มคนที่ไปทานอาหารหรือทำกิจกรรมร่วมกัน โดยนำเอาประเด็นจริงของการคำนวณเงิน การจัดการข้อมูล และการยืนยันการชำระเงินมาผนวกรวมกันในระบบเดียว
+
+โปรเจกต์นี้มีจุดเด่นที่สำคัญคือ:
+
+- มี UI ที่ใช้งานง่าย
+- มี API ที่จัดการ business logic อย่างชัดเจน
+- มี database schema ที่สอดคล้องกับความต้องการจริง
+- มีการแยก layer ของงานอย่างเป็นระบบ
+- เหมาะสำหรับเป็นผลงานสาธิตหรือ portfolio ฝึกงาน
+
+โดยภาพรวมแล้ว Cleft แสดงให้เห็นว่าผู้พัฒนามีความเข้าใจในหลักการของ full-stack development และสามารถนำความรู้ด้าน database, API, auth, UI, และ system design มาประยุกต์ใช้งานจริงได้
