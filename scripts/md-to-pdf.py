@@ -20,13 +20,13 @@ HTML_TEMPLATE = """<!DOCTYPE html>
   <style>
     @page {{
       size: A4;
-      margin: 18mm 16mm 20mm;
+      margin: 18mm 16mm 25mm;
       @bottom-left {{
         content: "Cleft - Project Summary";
         color: #6f6791;
         font-size: 8pt;
       }}
-      @bottom-right {{
+      @bottom-center {{
         content: "Page " counter(page) " of " counter(pages);
         color: #6f6791;
         font-size: 8pt;
@@ -59,9 +59,16 @@ HTML_TEMPLATE = """<!DOCTYPE html>
       color: #33294a;
       page-break-after: avoid;
     }}
-    p, li {{
+    p {{
       orphans: 3;
       widows: 3;
+    }}
+    li {{
+      break-inside: avoid;
+      page-break-inside: avoid;
+    }}
+    li + li {{
+      margin-top: 2pt;
     }}
     code {{
       font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
@@ -75,7 +82,10 @@ HTML_TEMPLATE = """<!DOCTYPE html>
       border: 1px solid #d9d1ef;
       border-radius: 8px;
       padding: 10pt 12pt;
-      overflow-x: auto;
+      overflow-x: visible;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+      word-break: break-word;
       font-size: 9pt;
       line-height: 1.45;
       break-inside: avoid;
@@ -123,7 +133,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
       margin: 16pt 0;
     }}
     ul, ol {{
-      padding-left: 18pt;
+      padding-left: 20pt;
     }}
     a {{
       color: #6d4de6;

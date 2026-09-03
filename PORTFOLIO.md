@@ -7,7 +7,7 @@ This document gives reviewers a fast path through the project without changing t
 - `frontend/` is the production Next.js application.
 - `backend/` is the production NestJS API with Prisma and PostgreSQL.
 - `edit_front_end/` is an archived standalone design prototype. It is retained to show the UI iteration process; it contains mock data and is not part of the production runtime.
-- `SUMMARY.pdf` contains the detailed architecture, data flow, API, database model, deployment notes, and known limitations.
+- `output/pdf/SUMMARY.pdf` contains the detailed architecture, data flow, API, database model, deployment notes, and known limitations.
 
 ## Portfolio highlights
 
@@ -37,4 +37,4 @@ Run the frontend and open `/demo`. The route uses deterministic sample data and 
 2. Compare the deterministic cent allocation in Frontend and Backend.
 3. Show the Prisma transaction that creates a party, its items, participants, consumptions, and history atomically.
 4. Show the CI workflow and explain the difference between unit, component, E2E, and integration coverage.
-5. Use `SUMMARY.pdf` to discuss current limitations and the next production-hardening steps.
+5. Use `output/pdf/SUMMARY.pdf` to discuss current limitations and the next production-hardening steps.
