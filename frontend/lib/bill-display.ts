@@ -35,22 +35,35 @@ export function computePayerAmounts(items: BillItem[], members: Member[]): Payer
     const assignees = [...assigned];
     if (assignees.length === 0) continue;
 
-    const share = total / assignees.length;
-    for (const name of assignees) {
-      amounts.set(name, (amounts.get(name) ?? 0) + share);
+    const totalCents = Math.round(total * 100);
+    const baseShare = Math.floor(totalCents / assignees.length);
+    const remainder = totalCents % assignees.length;
+    for (const [index, name] of assignees.entries()) {
+      amounts.set(name, (amounts.get(name) ?? 0) + baseShare + (index < remainder ? 1 : 0));
     }
   }
 
   return members.map((member) => {
     const isEmptyPartial = member.splitType === "PARTIAL" && (member.itemNames ?? []).length === 0;
-    const amount = isEmptyPartial ? 0 : amounts.get(member.name) ?? 0;
+    const amountCents = isEmptyPartial ? 0 : amounts.get(member.name) ?? 0;
     return {
       name: member.name,
-      amount: Number(amount.toFixed(2)),
+      amount: amountCents / 100,
       splitType: member.splitType,
       itemCount: member.splitType === "PARTIAL" ? member.itemNames?.length ?? 0 : undefined,
     };
   });
+}
+
+export function getUnassignedItemNames(items: BillItem[], members: Member[]) {
+  return items
+    .filter(
+      (item) =>
+        !members.some(
+          (member) => member.splitType === "ALL" || (member.itemNames ?? []).includes(item.name),
+        ),
+    )
+    .map((item) => item.name);
 }
 
 export function sessionTotal(items: BillItem[]) {

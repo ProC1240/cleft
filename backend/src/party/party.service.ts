@@ -23,11 +23,24 @@ export class PartyService {
       (participant.itemNames ?? []).some((itemName) => !knownItems.has(itemName)),
     );
     if (hasUnknownSelection) throw new BadRequestException("A participant selected an unknown item");
+
+    const unassignedItems = dto.items.filter(
+      (item) =>
+        !dto.participants.some(
+          (participant) =>
+            participant.splitType === "ALL" || (participant.itemNames ?? []).includes(item.name),
+        ),
+    );
+    if (unassignedItems.length > 0) {
+      throw new BadRequestException(
+        `Every item must have at least one participant: ${unassignedItems.map((item) => item.name).join(", ")}`,
+      );
+    }
   }
 
   calculate(dto: CalculatePartyDto) {
     this.validateParty(dto);
-    const allItemsTotal = dto.items.reduce((sum, item) => sum + item.price, 0);
+    const allItemsTotalCents = dto.items.reduce((sum, item) => sum + Math.round(item.price * 100), 0);
     const allParticipants = dto.participants.filter((p) => p.splitType === "ALL");
     const partialParticipants = dto.participants.filter((p) => p.splitType === "PARTIAL");
     const amounts = new Map<string, number>(dto.participants.map((p) => [p.name, 0]));
@@ -42,9 +55,11 @@ export class PartyService {
       const assignees = [...assigned];
       if (assignees.length === 0) continue;
 
-      const share = item.price / assignees.length;
-      for (const name of assignees) {
-        amounts.set(name, (amounts.get(name) ?? 0) + share);
+      const itemCents = Math.round(item.price * 100);
+      const baseShare = Math.floor(itemCents / assignees.length);
+      const remainder = itemCents % assignees.length;
+      for (const [index, name] of assignees.entries()) {
+        amounts.set(name, (amounts.get(name) ?? 0) + baseShare + (index < remainder ? 1 : 0));
       }
     }
 
@@ -52,13 +67,13 @@ export class PartyService {
       const isEmptyPartial =
         participant.splitType === "PARTIAL" && (participant.itemNames ?? []).length === 0;
       const amount = isEmptyPartial ? 0 : amounts.get(participant.name) ?? 0;
-      return { name: participant.name, amount: Number(amount.toFixed(2)) };
+      return { name: participant.name, amount: amount / 100 };
     });
 
     return {
       partyName: dto.partyName,
       partyDate: dto.partyDate,
-      totalAmount: Number(allItemsTotal.toFixed(2)),
+      totalAmount: allItemsTotalCents / 100,
       participants: totals,
       meta: {
         allCount: allParticipants.length,

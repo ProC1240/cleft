@@ -18,6 +18,8 @@ backend/dist/
 .cursor/
 .DS_Store
 *.log
+playwright-report/
+test-results/
 
 # Generated from scripts/md-to-pdf.py
 SUMMARY.html

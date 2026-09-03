@@ -89,6 +89,12 @@ export default function HomePage() {
               </svg>
               Continue with Google
             </a>
+            <Link
+              href="/demo"
+              className="mt-3 inline-flex w-full items-center justify-center rounded-xl border border-accent/35 px-5 py-3 text-sm font-medium text-text transition-colors hover:bg-accent/10"
+            >
+              Preview demo
+            </Link>
             <p className="mt-6 text-[0.78rem] font-light leading-6 text-[#6f6791]">
               Items, members, and summary unlock once you sign in.
             </p>

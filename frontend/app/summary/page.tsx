@@ -13,7 +13,14 @@ import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/toast";
 import { api } from "@/lib/axios";
 import { usePartySession } from "@/hooks/use-party-session";
-import { computePayerAmounts, formatMoney, memberInitial, sessionTotal, type PayerRow } from "@/lib/bill-display";
+import {
+  computePayerAmounts,
+  formatMoney,
+  getUnassignedItemNames,
+  memberInitial,
+  sessionTotal,
+  type PayerRow,
+} from "@/lib/bill-display";
 
 export default function SummaryPage() {
   const { session, setSession } = usePartySession();
@@ -31,10 +38,11 @@ export default function SummaryPage() {
 
   const payers: PayerRow[] = computePayerAmounts(session.items, session.members);
   const total = sessionTotal(session.items);
+  const unassignedItems = getUnassignedItemNames(session.items, session.members);
 
   const confirmMutation = useMutation({
     mutationFn: async () => {
-      if (!partyName || session.items.length === 0 || session.members.length === 0) {
+      if (!partyName || session.items.length === 0 || session.members.length === 0 || unassignedItems.length > 0) {
         throw new Error("Party name, items, and members are required");
       }
       const payload = {
@@ -106,6 +114,12 @@ export default function SummaryPage() {
             </div>
           ) : null}
         </section>
+
+        {unassignedItems.length > 0 ? (
+          <div role="alert" className="mt-4 rounded-xl border border-amber-300/25 bg-amber-300/10 px-4 py-3 text-sm text-amber-100">
+            Assign every item before confirming: {unassignedItems.join(", ")}
+          </div>
+        ) : null}
 
         <section className="mt-8">
           <div className="mb-4 flex items-center justify-between gap-3">
@@ -188,7 +202,13 @@ export default function SummaryPage() {
           </Link>
           <Button
             onClick={() => confirmMutation.mutate()}
-            disabled={!partyName || session.items.length === 0 || session.members.length === 0 || confirmMutation.isPending}
+            disabled={
+              !partyName ||
+              session.items.length === 0 ||
+              session.members.length === 0 ||
+              unassignedItems.length > 0 ||
+              confirmMutation.isPending
+            }
             className="flex-1 sm:flex-none"
           >
             Confirm split

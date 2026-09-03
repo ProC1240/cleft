@@ -9,4 +9,23 @@ export default defineConfig({
     port: 5173,
     strictPort: false,
   },
+  build: {
+    rolldownOptions: {
+      output: {
+        codeSplitting: {
+          groups: [
+            {
+              name: "charts",
+              test: /node_modules[\\/](recharts|d3-|victory-vendor)/,
+              maxSize: 300_000,
+            },
+            {
+              name: "react",
+              test: /node_modules[\\/](react|react-dom|scheduler)/,
+            },
+          ],
+        },
+      },
+    },
+  },
 });

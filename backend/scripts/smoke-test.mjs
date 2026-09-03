@@ -78,6 +78,33 @@ try {
   expect(calculation.totalAmount === 400, "Calculated total should be 400");
   expect(amountByName.get("Alice") === 250 && amountByName.get("Bob") === 150, "Calculated shares are incorrect");
 
+  const rounded = await request("/party/calculate", {
+    method: "POST",
+    headers: { ...headers, "content-type": "application/json" },
+    body: JSON.stringify({
+      partyName: "Rounding check",
+      partyDate: new Date().toISOString(),
+      items: [{ name: "Shared dish", price: 100 }],
+      participants: ["Alice", "Bob", "Cara"].map((name) => ({ name, splitType: "ALL", itemNames: [] })),
+    }),
+  });
+  expect(
+    rounded.participants.reduce((sum, participant) => sum + participant.amount, 0) === rounded.totalAmount,
+    "Rounded participant amounts must equal the bill total",
+  );
+
+  const unassignedResponse = await fetch(`${baseUrl}/party/calculate`, {
+    method: "POST",
+    headers: { ...headers, "content-type": "application/json" },
+    body: JSON.stringify({
+      partyName: "Unassigned check",
+      partyDate: new Date().toISOString(),
+      items: [{ name: "Dessert", price: 120 }],
+      participants: [{ name: "Alice", splitType: "PARTIAL", itemNames: [] }],
+    }),
+  });
+  expect(unassignedResponse.status === 400, "An unassigned item must be rejected");
+
   const form = new FormData();
   form.set("payload", JSON.stringify({ party, confirmedAt: new Date().toISOString() }));
   const confirmed = await request("/party/confirm", {
@@ -91,7 +118,7 @@ try {
   const history = await request("/party/history?all=true", { headers });
   expect(history.some((record) => record.party?.id === partyId), "Confirmed party is missing from history");
 
-  console.log("Smoke test passed: health, auth, profile, calculation, confirm, and history");
+  console.log("Smoke test passed: health, auth, profile, calculation edge cases, confirm, and history");
 } finally {
   if (partyId) await prisma.party.deleteMany({ where: { id: partyId } });
   if (userId) await prisma.user.deleteMany({ where: { id: userId } });

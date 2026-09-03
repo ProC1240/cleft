@@ -3,6 +3,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { FormEvent, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/toast";
@@ -32,9 +33,10 @@ function useIsMobileNav() {
 
 export function ProfileMenu() {
   const [open, setOpen] = useState(false);
-  const [mounted, setMounted] = useState(false);
   const [form, setForm] = useState<ProfileForm>({ username: "Guest", avatar: "", currencySymbol: "THB" });
+  const [appliedProfileKey, setAppliedProfileKey] = useState<string | null>(null);
   const panelRef = useRef<HTMLDivElement>(null);
+  const router = useRouter();
   const queryClient = useQueryClient();
   const { showToast } = useToast();
   const isMobileNav = useIsMobileNav();
@@ -62,18 +64,18 @@ export function ProfileMenu() {
     enabled: isAuthenticated,
   });
 
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  useEffect(() => {
-    if (!profile) return;
-    setForm({
+  const profileKey = profile
+    ? JSON.stringify([profile.username ?? "Guest", profile.avatar ?? "", profile.currencySymbol ?? "THB"])
+    : null;
+  if (profile && profileKey !== appliedProfileKey) {
+    const nextProfile = {
       username: profile.username ?? "Guest",
       avatar: profile.avatar ?? "",
       currencySymbol: profile.currencySymbol ?? "THB",
-    });
-  }, [profile]);
+    };
+    setAppliedProfileKey(profileKey);
+    setForm(nextProfile);
+  }
 
   useEffect(() => {
     if (!open || isMobileNav) return;
@@ -113,7 +115,7 @@ export function ProfileMenu() {
       localStorage.removeItem("cleft-session");
       showToast({ title: "Logged out successfully", kind: "success" });
       setOpen(false);
-      window.location.href = "/";
+      router.push("/");
     } catch {
       showToast({ title: "Logout failed", description: "Please try again.", kind: "error" });
     }
@@ -202,7 +204,7 @@ export function ProfileMenu() {
   );
 
   const mobileModal =
-    open && isMobileNav && mounted
+    open && isMobileNav
       ? createPortal(
           <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
             <button

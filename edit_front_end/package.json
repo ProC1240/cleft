@@ -1,5 +1,6 @@
 {
-  "name": "cleft-edit-front-end",
+  "name": "cleft-design-prototype",
+  "description": "Archived standalone UI prototype for comparing the design process with the production Next.js app",
   "version": "1.0.0",
   "private": true,
   "type": "module",

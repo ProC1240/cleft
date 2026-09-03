@@ -1,5 +1,7 @@
 "use client";
 
+/* eslint-disable react-hooks/set-state-in-effect -- hydration intentionally synchronizes React state with localStorage */
+
 import { useEffect, useState } from "react";
 import { BillItem, Member } from "@/lib/types";
 
