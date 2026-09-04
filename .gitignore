@@ -24,3 +24,8 @@ test-results/
 # Generated from scripts/md-to-pdf.py
 SUMMARY.html
 DATAFLOW.html
+
+# Local deployment metadata and environment overrides
+.vercel/
+.env.local
+.env.*.local
