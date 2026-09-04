@@ -41,6 +41,7 @@ jobs:
       GOOGLE_CLIENT_ID: ci-google-client-id
       GOOGLE_CLIENT_SECRET: ci-google-client-secret
       GOOGLE_CALLBACK_URL: http://127.0.0.1:3000/api/auth/google/callback
+      ALLOWED_LOGIN_EMAIL: ci-allowed@example.com
       JWT_ACCESS_SECRET: ci-access-secret-that-is-long-enough-for-tests
       JWT_REFRESH_SECRET: ci-refresh-secret-that-is-long-enough-for-tests
     steps:
