@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, UnauthorizedException } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { JwtService, JwtSignOptions } from "@nestjs/jwt";
 import { User } from "@prisma/client";
@@ -14,6 +14,13 @@ export class AuthService {
   ) {}
 
   async validateGoogleUser(googleProfile: { googleId: string; email: string; username: string; avatar?: string }) {
+    const allowedEmail = this.configService.get<string>("ALLOWED_LOGIN_EMAIL", "").trim().toLowerCase();
+    const profileEmail = googleProfile.email.trim().toLowerCase();
+
+    if (!allowedEmail || profileEmail !== allowedEmail) {
+      throw new UnauthorizedException("This Google account is not allowed");
+    }
+
     const user = await this.prisma.user.upsert({
       where: { googleId: googleProfile.googleId },
       update: {
