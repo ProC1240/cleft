@@ -6,13 +6,6 @@ function itemLineTotal(items: BillItem[]) {
   return new Map(items.map((item) => [item.name, item.price * (item.quantity ?? 1)]));
 }
 
-/**
- * Per-item fair split:
- * - ALL members are assigned to every item.
- * - PARTIAL members are assigned only to checked/selected items.
- * - PARTIAL with no selected items owes 0 THB.
- * - Each item's cost divides equally among everyone assigned to that item.
- */
 export function computePayerAmounts(items: BillItem[], members: Member[]): PayerRow[] {
   if (members.length === 0) return [];
 

@@ -1,9 +1,3 @@
-# Backend image — repo root Dockerfile for hosts (e.g. Render "Docker" preset)
-# that expect ./Dockerfile here. Docker build context MUST be repo root (.).
-#
-# Docker Compose continues to use backend/Dockerfile with context backend/.
-# Keep these two files logically in sync.
-
 FROM node:22-bullseye-slim AS deps
 WORKDIR /app
 COPY backend/package*.json ./
@@ -24,5 +18,4 @@ COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/prisma ./prisma
 COPY backend/package*.json ./
 EXPOSE 4000
-# Apply committed migrations on boot, then start the API.
 CMD ["sh", "-c", "npx prisma migrate deploy && node dist/main.js"]

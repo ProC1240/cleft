@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-# Print JWT secrets for Render Environment (Phase 2).
 set -euo pipefail
 
 echo "Add these to Render → cleft-api → Environment:"

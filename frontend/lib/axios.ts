@@ -1,8 +1,6 @@
 import axios from "axios";
 import { API_BASE } from "@/lib/api-base";
 
-/* eslint-disable @next/next/no-location-assign-relative-destination -- this interceptor runs outside React and must force a clean auth navigation */
-
 export const api = axios.create({
   baseURL: API_BASE,
   withCredentials: true,
@@ -21,6 +19,10 @@ function isRefreshRequest(url?: string) {
 function shouldRedirectToLogin() {
   if (typeof window === "undefined") return false;
   return !new Set(["/", "/demo"]).has(window.location.pathname);
+}
+
+function redirectToLogin() {
+  window.location.replace(new URL("/", window.location.origin).toString());
 }
 
 api.interceptors.response.use(
@@ -52,7 +54,7 @@ api.interceptors.response.use(
         pendingQueue.forEach(({ reject }) => reject(refreshError));
         pendingQueue = [];
         if (shouldRedirectToLogin()) {
-          window.location.href = "/";
+          redirectToLogin();
         }
         return Promise.reject(refreshError);
       } finally {
@@ -62,7 +64,7 @@ api.interceptors.response.use(
 
     if (error.response?.status === 401 && !isRefreshRequest(originalRequest?.url)) {
       if (shouldRedirectToLogin()) {
-        window.location.href = "/";
+        redirectToLogin();
       }
     }
     return Promise.reject(error);

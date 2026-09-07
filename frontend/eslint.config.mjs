@@ -10,6 +10,12 @@ export default defineConfig([
       "@next/next/no-page-custom-font": "off",
     },
   },
+  {
+    files: ["hooks/use-party-session.ts"],
+    rules: {
+      "react-hooks/set-state-in-effect": "off",
+    },
+  },
   globalIgnores([
     ".next/**",
     "out/**",

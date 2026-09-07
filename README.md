@@ -2,6 +2,8 @@
 
 แอปแบ่งบิลแบบ Full Stack: Next.js frontend, NestJS backend, PostgreSQL และ Prisma
 
+**Live Demo:** [https://cleft-usb2.vercel.app/demo](https://cleft-usb2.vercel.app/demo)
+
 แนะนำ Node.js 22 สำหรับการรันแบบ native หรือ Docker Desktop สำหรับการรันทั้งระบบด้วย Compose
 
 ## รันด้วย Docker

@@ -1,6 +1,7 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import Image from "next/image";
 import { FormEvent, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
@@ -151,10 +152,9 @@ export function ProfileMenu() {
       {isAuthenticated ? (
         <form onSubmit={handleSave} className="mt-4 space-y-4">
           <div className="flex items-center gap-3">
-            <div className="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-full border border-accent/40 bg-accent/25 text-lg font-bold text-white">
+            <div className="relative flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-full border border-accent/40 bg-accent/25 text-lg font-bold text-white">
               {form.avatar ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src={form.avatar} alt="" className="h-full w-full object-cover" />
+                <Image src={form.avatar} alt="" fill sizes="56px" className="object-cover" unoptimized />
               ) : (
                 memberInitial(form.username)
               )}
@@ -235,10 +235,9 @@ export function ProfileMenu() {
         aria-expanded={open}
         aria-haspopup="dialog"
       >
-        <div className="flex h-6 w-6 shrink-0 items-center justify-center overflow-hidden rounded-full border border-muted/40 bg-transparent text-[0.7rem] font-medium text-muted">
+        <div className="relative flex h-6 w-6 shrink-0 items-center justify-center overflow-hidden rounded-full border border-muted/40 bg-transparent text-[0.7rem] font-medium text-muted">
           {form.avatar ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={form.avatar} alt="" className="h-full w-full object-cover" />
+            <Image src={form.avatar} alt="" fill sizes="24px" className="object-cover" unoptimized />
           ) : (
             memberInitial(displayName)
           )}

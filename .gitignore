@@ -20,7 +20,6 @@ backend/dist/
 playwright-report/
 test-results/
 
-# Project review artifacts (kept outside the source repository)
 /PORTFOLIO.md
 /SUMMARY.*
 /DATAFLOW.*
@@ -29,7 +28,6 @@ test-results/
 /frontend/AGENTS.md
 /frontend/CLAUDE.md
 
-# Local deployment metadata and environment overrides
 .vercel/
 .env.local
 .env.*.local

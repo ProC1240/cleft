@@ -11,7 +11,6 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const configService = app.get(ConfigService);
 
-  // Render/Vercel terminate TLS — required for Secure cookies (SameSite=none)
   app.getHttpAdapter().getInstance().set("trust proxy", 1);
 
   app.use(

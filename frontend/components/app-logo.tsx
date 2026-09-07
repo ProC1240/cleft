@@ -1,3 +1,5 @@
+import Image from "next/image";
+
 type AppLogoProps = {
   size?: "sm" | "md" | "lg";
   variant?: "circle" | "square" | "mark";
@@ -12,14 +14,14 @@ export function AppLogo({ size = "md", variant = "square", showWordmark = true, 
 
   return (
     <span className={`inline-flex items-center gap-2.5 ${className}`}>
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
+      <Image
         src={iconSrc}
         alt=""
         width={36}
         height={36}
         className={`${iconSize} shrink-0 object-contain`}
         draggable={false}
+        unoptimized
       />
       {showWordmark ? (
         <span
