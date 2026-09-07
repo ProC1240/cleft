@@ -11,7 +11,7 @@ test("shows a clear login path for signed-out visitors", async ({ page }) => {
   await expect(page.getByRole("link", { name: "Preview demo" })).toBeVisible();
 });
 
-test("lets reviewers explore the product without authentication", async ({ page }) => {
+test("lets visitors explore the product without authentication", async ({ page }) => {
   await page.route("**/api/auth/**", (route) =>
     route.fulfill({ status: 401, contentType: "application/json", body: JSON.stringify({ message: "Unauthorized" }) }),
   );

@@ -8,8 +8,7 @@ uploads/*
 node_modules/
 backend/node_modules/
 frontend/node_modules/
-edit_front_end/node_modules/
-edit_front_end/dist/
+/edit_front_end/
 
 .next/
 backend/dist/
@@ -21,9 +20,14 @@ backend/dist/
 playwright-report/
 test-results/
 
-# Generated from scripts/md-to-pdf.py
-SUMMARY.html
-DATAFLOW.html
+# Project review artifacts (kept outside the source repository)
+/PORTFOLIO.md
+/SUMMARY.*
+/DATAFLOW.*
+/stack_structure
+/output/
+/frontend/AGENTS.md
+/frontend/CLAUDE.md
 
 # Local deployment metadata and environment overrides
 .vercel/
